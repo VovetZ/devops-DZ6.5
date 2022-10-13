@@ -261,7 +261,7 @@ Cостояние кластера elasticsearch
 
 Запрос на регистрацию snapshot репозитория
 
-```JSON
+```bash
 ⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup?pretty" -H 'Content-Type: application/json' -d'
            {
              "type": "fs",
@@ -276,7 +276,7 @@ Cостояние кластера elasticsearch
 ```
 
 Создали индекс `test`
-
+```bash
 ⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic"https://localhost:9200/test?pretty" -H 'Content-Type: application/json' -d'
            {
              "settings": {
@@ -293,7 +293,7 @@ green  open   test  h_iRtHMER-GPx4ULM33OPA   1   0          0            0      
 ```
 
 Сделали snapshot кластера
-```JSON
+```bash
 ⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup/my_snapshot1?pretty"
 {
   "accepted" : true
@@ -311,7 +311,7 @@ drwxr-xr-x 5 elasticsearch elasticsearch  4096 Oct 13 17:32 indices
 ```
 
 Удалили индекс test и создали индекс test-2
-```JSON
+```bash
 ⋊> ~/DZ6.5 curl -X GET --insecure -u elastic"https://localhost:9200/_cat/indices?v=true"
 health status index  uuid                   pri rep docs.count docs.deleted store.size pri.store.size
 green  open   test-2 d25OsBslSnSlmROWpU2gwA   1   0          0            0       225b           225b
@@ -319,7 +319,7 @@ green  open   test-2 d25OsBslSnSlmROWpU2gwA   1   0          0            0     
 
 Cписок доступных snapshotов
 
-```JSON 
+```bash 
 ⋊> ~/DZ6.5 curl -X GET --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup/*?verbose=false&pretty"
 {
   "snapshots" : [
@@ -343,7 +343,7 @@ Cписок доступных snapshotов
 
 Восстановили состояние кластера из snapshot, созданного ранее
 
-```JSON
+```bash
 ⋊> ~/DZ6.5 curl -X POST --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup/my_snapshot1/_restore?pretty" -H 'Content-Type: application/json' -d'
            {
              "indices": "*",
@@ -355,16 +355,16 @@ Cписок доступных snapshotов
   "accepted" : true
 }
 
-```
 curl -X POST --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup/my_snapshot1/_restore?pretty" -H 'Content-Type: application/json' -d'
 {
   "indices": "*",
   "include_global_state": true
  }
  '
+```
 
 Итоговый список индексов
-```JSON
+```bash
 ⋊> ~/DZ6.5 curl -X GET --insecure -u elastic"https://localhost:9200/_cat/indices?v=true"
 health status index  uuid                   pri rep docs.count docs.deleted store.size pri.store.size
 green  open   test-2 d25OsBslSnSlmROWpU2gwA   1   0          0            0       225b           225b
