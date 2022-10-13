@@ -33,18 +33,20 @@
 
 ## Решение
 Готовим `Dockerfile` вида
-
 ```
 FROM centos:7
-RUN groupadd elasticsearch && \
-    useradd -c "elasticsearch" -g elasticsearch elasticsearch && \
-    yum update -y && yum -y install wget perl-Digest-SHA 
-COPY elasticsearch-8.4.3-linux-x86_64.tar.gz /opt/
-RUN	cd /opt && \
+RUN cd /opt && \
+    groupadd elasticsearch && \
+    useradd -c "elasticsearch" -g elasticsearch elasticsearch &&\
+    yum update -y && yum -y install wget perl-Digest-SHA && \
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.3-linux-x86_64.tar.gz && \
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.3-linux-x86_64.tar.gz.sha512 && \
+    shasum -a 512 -c elasticsearch-8.4.3-linux-x86_64.tar.gz.sha512 && \
     tar -xzf elasticsearch-8.4.3-linux-x86_64.tar.gz && \
-	rm elasticsearch-8.4.3-linux-x86_64.tar.gz && \
+	rm elasticsearch-8.4.3-linux-x86_64.tar.gz elasticsearch-8.4.3-linux-x86_64.tar.gz.sha512 && \ 
 	mkdir /var/lib/data && chmod -R 777 /var/lib/data && \
 	chown -R elasticsearch:elasticsearch /opt/elasticsearch-8.4.3 && \
+	yum clean all
 USER elasticsearch
 WORKDIR /opt/elasticsearch-8.4.3/
 COPY elasticsearch.yml  config/
@@ -60,6 +62,33 @@ path:
   data: /var/lib/data
 xpack.ml.enabled: false
 ```
+
+```bash
+⋊> ~/DZ6.5 curl --insecure -u elastic https://localhost:9200
+{
+  "name" : "netology_test",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "utpzFmK8SxiQ39LlKQ1u1A",
+  "version" : {
+    "number" : "8.4.3",
+    "build_flavor" : "default",
+    "build_type" : "tar",
+    "build_hash" : "42f05b9372a9a4a470db3b52817899b99a76ee73",
+    "build_date" : "2022-10-04T07:17:24.662462378Z",
+    "build_snapshot" : false,
+    "lucene_version" : "9.3.0",
+    "minimum_wire_compatibility_version" : "7.17.0",
+    "minimum_index_compatibility_version" : "7.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+
+```
+
+Ссылка на образ
+
+[Docker Hub](https://hub.docker.com/r/vkuzevanov/vkelastic/)
+
 
 ## Задача 2
 
