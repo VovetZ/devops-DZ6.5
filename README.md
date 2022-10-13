@@ -252,3 +252,121 @@ Cостояние кластера elasticsearch
 - возможно вам понадобится доработать `elasticsearch.yml` в части директивы `path.repo` и перезапустить `elasticsearch`
 
 ## Решение
+
+
+- Создали директорию /opt/elasticsearch-8.4.3/snaps
+- В конфигурационный файл elasticsearch.yml внесли параметр path.repo: ["/opt/elasticsearch-8.4.3/snaps"]
+- Рестартовали контейнер
+
+
+Запрос на регистрацию snapshot репозитория
+
+```JSON
+⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup?pretty" -H 'Content-Type: application/json' -d'
+           {
+             "type": "fs",
+             "settings": {
+               "location": "/opt/elasticsearch-8.4.3/snaps"
+             }
+           }
+           '
+{
+  "acknowledged" : true
+}
+```
+
+Создали индекс `test`
+
+⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic"https://localhost:9200/test?pretty" -H 'Content-Type: application/json' -d'
+           {
+             "settings": {
+               "index": {
+                 "number_of_shards": 1,  
+                 "number_of_replicas": 0 
+               }
+             }
+           }
+           '
+⋊> ~/DZ6.5 curl -X GET --insecure -u elastic"https://localhost:9200/_cat/indices?v=true"
+health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   test  h_iRtHMER-GPx4ULM33OPA   1   0          0            0       225b           225b
+```
+
+Сделали snapshot кластера
+```JSON
+⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup/my_snapshot1?pretty"
+{
+  "accepted" : true
+}
+
+
+[elasticsearch@09c46adf8509 elasticsearch-8.4.3]$ ls -l /opt/elasticsearch-8.4.3/snaps/
+total 36
+-rw-r--r-- 1 elasticsearch elasticsearch  1097 Oct 13 17:32 index-0
+-rw-r--r-- 1 elasticsearch elasticsearch     8 Oct 13 17:32 index.latest
+drwxr-xr-x 5 elasticsearch elasticsearch  4096 Oct 13 17:32 indices
+-rw-r--r-- 1 elasticsearch elasticsearch 16647 Oct 13 17:32 meta-tqBi5wgNRZqlMnjOLoAnCw.dat
+-rw-r--r-- 1 elasticsearch elasticsearch   387 Oct 13 17:32 snap-tqBi5wgNRZqlMnjOLoAnCw.dat
+
+```
+
+Удалили индекс test и создали индекс test-2
+```JSON
+⋊> ~/DZ6.5 curl -X GET --insecure -u elastic"https://localhost:9200/_cat/indices?v=true"
+health status index  uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   test-2 d25OsBslSnSlmROWpU2gwA   1   0          0            0       225b           225b
+```
+
+Cписок доступных snapshotов
+
+```JSON 
+⋊> ~/DZ6.5 curl -X GET --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup/*?verbose=false&pretty"
+{
+  "snapshots" : [
+    {
+      "snapshot" : "my_snapshot1",
+      "uuid" : "tqBi5wgNRZqlMnjOLoAnCw",
+      "repository" : "netology_backup",
+      "indices" : [
+        ".geoip_databases",
+        ".security-7",
+        "test"
+      ],
+      "data_streams" : [ ],
+      "state" : "SUCCESS"
+    }
+  ],
+  "total" : 1,
+  "remaining" : 0
+}
+```
+
+Восстановили состояние кластера из snapshot, созданного ранее
+
+```JSON
+⋊> ~/DZ6.5 curl -X POST --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup/my_snapshot1/_restore?pretty" -H 'Content-Type: application/json' -d'
+           {
+             "indices": "*",
+             "include_global_state": true
+            }
+            '
+
+{
+  "accepted" : true
+}
+
+```
+curl -X POST --insecure -u elastic"https://localhost:9200/_snapshot/netology_backup/my_snapshot1/_restore?pretty" -H 'Content-Type: application/json' -d'
+{
+  "indices": "*",
+  "include_global_state": true
+ }
+ '
+
+Итоговый список индексов
+```JSON
+⋊> ~/DZ6.5 curl -X GET --insecure -u elastic"https://localhost:9200/_cat/indices?v=true"
+health status index  uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   test-2 d25OsBslSnSlmROWpU2gwA   1   0          0            0       225b           225b
+green    open   test   OgA7YWRgQWK766XUS7_cjQ   1   0  
+```
