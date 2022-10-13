@@ -122,7 +122,7 @@ xpack.ml.enabled: false
 ## Решение
 
 ```bash
-⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-1?pretty" -H 'Content-Type: application/json' -d'
+⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic "https://localhost:9200/ind-1?pretty" -H 'Content-Type: application/json' -d'
            {
              "settings": {
                "index": {
@@ -137,7 +137,7 @@ xpack.ml.enabled: false
   "shards_acknowledged" : true,
   "index" : "ind-1"
 }
-⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-2?pretty" -H 'Content-Type: application/json' -d'
+⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic "https://localhost:9200/ind-2?pretty" -H 'Content-Type: application/json' -d'
            {
              "settings": {
                "index": {
@@ -152,7 +152,7 @@ xpack.ml.enabled: false
   "shards_acknowledged" : true,
   "index" : "ind-2"
 }
-⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-3?pretty" -H 'Content-Type: application/json' -d'
+⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic "https://localhost:9200/ind-3?pretty" -H 'Content-Type: application/json' -d'
            {
              "settings": {
                "index": {
@@ -172,7 +172,7 @@ xpack.ml.enabled: false
 Cписок индексов и их статусов
 
 ```bash
-⋊> ~/DZ6.5 curl -X GET --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/_cat/indices?v=true"
+⋊> ~/DZ6.5 curl -X GET --insecure -u elastic "https://localhost:9200/_cat/indices?v=true"
 health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
 green  open   ind-1 lVfWGhi5T0eBWkJhDRLaMg   1   0          0            0       225b           225b
 yellow open   ind-3 sb5MyVQsRAi44xEvX8bJCA   4   2          0            0       900b           900b
@@ -180,7 +180,7 @@ yellow open   ind-2 HxJ0aMYnSluVbu-Zxz7Cvg   2   1          0            0      
 ```
 Cостояние кластера elasticsearch
 ```bash
-⋊> ~/DZ6.5 curl -X GET --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/_cluster/health?pretty"
+⋊> ~/DZ6.5 curl -X GET --insecure -u elastic "https://localhost:9200/_cluster/health?pretty"
 {
   "cluster_name" : "elasticsearch",
   "status" : "yellow",
@@ -204,17 +204,17 @@ Cостояние кластера elasticsearch
 Удаление индексов
 
 ```bash
-⋊> ~/DZ6.5 curl -X DELETE --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-1?pretty"
+⋊> ~/DZ6.5 curl -X DELETE --insecure -u elastic "https://localhost:9200/ind-1?pretty"
 
 {
   "acknowledged" : true
 }
-⋊> ~/DZ6.5 curl -X DELETE --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-2?pretty"
+⋊> ~/DZ6.5 curl -X DELETE --insecure -u elastic "https://localhost:9200/ind-2?pretty"
 
 {
   "acknowledged" : true
 }
-⋊> ~/DZ6.5 curl -X DELETE --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-3?pretty"
+⋊> ~/DZ6.5 curl -X DELETE --insecure -u elastic "https://localhost:9200/ind-3?pretty"
 
 {
   "acknowledged" : true
