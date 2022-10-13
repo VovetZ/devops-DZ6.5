@@ -114,12 +114,112 @@ xpack.ml.enabled: false
 
 Удалите все индексы.
 
-## Решение
-
 **Важно**
 
 При проектировании кластера elasticsearch нужно корректно рассчитывать количество реплик и шард,
 иначе возможна потеря данных индексов, вплоть до полной, при деградации системы.
+
+## Решение
+
+```bash
+⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-1?pretty" -H 'Content-Type: application/json' -d'
+           {
+             "settings": {
+               "index": {
+                 "number_of_shards": 1,  
+                 "number_of_replicas": 0 
+               }
+             }
+           }
+           '
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "ind-1"
+}
+⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-2?pretty" -H 'Content-Type: application/json' -d'
+           {
+             "settings": {
+               "index": {
+                 "number_of_shards": 2,  
+                 "number_of_replicas": 1 
+               }
+             }
+           }
+           '
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "ind-2"
+}
+⋊> ~/DZ6.5 curl -X PUT --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-3?pretty" -H 'Content-Type: application/json' -d'
+           {
+             "settings": {
+               "index": {
+                 "number_of_shards": 4,  
+                 "number_of_replicas": 2 
+               }
+             }
+           }
+           '
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "ind-3"
+}
+```
+
+Cписок индексов и их статусов
+
+```bash
+⋊> ~/DZ6.5 curl -X GET --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/_cat/indices?v=true"
+health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   ind-1 lVfWGhi5T0eBWkJhDRLaMg   1   0          0            0       225b           225b
+yellow open   ind-3 sb5MyVQsRAi44xEvX8bJCA   4   2          0            0       900b           900b
+yellow open   ind-2 HxJ0aMYnSluVbu-Zxz7Cvg   2   1          0            0       450b           450b
+```
+Cостояние кластера elasticsearch
+```bash
+⋊> ~/DZ6.5 curl -X GET --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/_cluster/health?pretty"
+{
+  "cluster_name" : "elasticsearch",
+  "status" : "yellow",
+  "timed_out" : false,
+  "number_of_nodes" : 1,
+  "number_of_data_nodes" : 1,
+  "active_primary_shards" : 9,
+  "active_shards" : 9,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 10,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 47.368421052631575
+}
+```
+Индексы и кластер находятся в yellow, так как при создании индексов мы указали количество реплик > 1. Поскольку у нас всего 1 нода, реплицировать индексы некуда :(
+
+Удаление индексов
+
+```bash
+⋊> ~/DZ6.5 curl -X DELETE --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-1?pretty"
+
+{
+  "acknowledged" : true
+}
+⋊> ~/DZ6.5 curl -X DELETE --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-2?pretty"
+
+{
+  "acknowledged" : true
+}
+⋊> ~/DZ6.5 curl -X DELETE --insecure -u elastic:S7bEdqB=AI9p3Rr5JWCf "https://localhost:9200/ind-3?pretty"
+
+{
+  "acknowledged" : true
+}
+```
 
 ## Задача 3
 
